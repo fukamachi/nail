@@ -53,13 +53,13 @@
 
 (defmethod stream-write-string ((stream nail-stream) str &optional start end)
   (with-slots (buffer) stream
-    (let ((stack (get-prev-stack)))
+    (let ((package (called-package)))
       (cond
         ((null buffer)
-         (setf buffer (make-buffer :package (symbol-package stack))))
-        ((eq (symbol-package stack) (buffer-package buffer))
+         (setf buffer (make-buffer :package package)))
+        ((not (eq package (buffer-package buffer)))
          (flush-buffer stream)
-         (setf buffer (make-buffer :package (symbol-package stack)))))
+         (setf buffer (make-buffer :package package))))
 
       (add-chunk buffer str start end)
       (when (line-end-p str end)

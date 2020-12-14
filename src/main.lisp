@@ -33,10 +33,10 @@
 
 (defpackage #:nai
   (:use #:cl)
-  (:shadow #:debug))
+  (:shadow #:debug)
+  (:export #:debug
+           #:info))
 (in-package #:nai)
-
-(declaim (inline debug info))
 
 (defun debug (message)
   (write-line message *trace-output*))

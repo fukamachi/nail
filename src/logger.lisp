@@ -18,14 +18,24 @@
            #:make-error-handler))
 (in-package #:nail/logger)
 
+(defun extract-app-name (package-name)
+  (when package-name
+    (let ((/-pos (position #\/ package-name :test #'char=)))
+      (if /-pos
+          (subseq package-name 0 /-pos)
+          package-name))))
+
 (defun default-formatter (packet package stream)
-  (multiple-value-bind (sec min hour)
-      (decode-universal-time (packet-created-at packet))
-    (format stream "~:[~;~:*~A | ~]<~:@(~A~)> [~2,'0D:~2,'0D:~2,'0D] ~A"
-            (and package (string-downcase (package-name package)))
-            (packet-level packet)
-            hour min sec
-            (packet-message packet))))
+  (let* ((package-name (and package
+                            (string-downcase (package-name package))))
+         (app-name (extract-app-name package-name)))
+    (multiple-value-bind (sec min hour)
+        (decode-universal-time (packet-created-at packet))
+      (format stream "~:[~;~:*~A | ~]<~:@(~A~)> [~2,'0D:~2,'0D:~2,'0D] ~A"
+              app-name
+              (packet-level packet)
+              hour min sec
+              (packet-message packet)))))
 
 (defclass logger () ())
 
