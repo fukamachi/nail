@@ -14,3 +14,5 @@
    (:file "stream" :depends-on ("packet" "stack" "buffer"))
    (:file "stack")
    (:file "buffer")))
+
+(register-system-packages "nail" '(#:nai))

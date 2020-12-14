@@ -51,8 +51,14 @@
            #:info))
 (in-package #:nai)
 
-(defun debug (message)
-  (write-line message *trace-output*))
+(defun debug (format-control &rest format-args)
+  (apply #'format *trace-output*
+         format-control
+         format-args)
+  (fresh-line *trace-output*))
 
-(defun info (message)
-  (write-line message *standard-output*))
+(defun info (format-control &rest format-args)
+  (apply #'format *standard-output*
+         format-control
+         format-args)
+  (fresh-line *standard-output*))
