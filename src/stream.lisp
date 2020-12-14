@@ -14,11 +14,14 @@
                 #:fundamental-character-output-stream
                 #:stream-write-string
                 #:stream-write-char)
-  (:export #:nail-stream
+  (:export #:*enable-logger*
+           #:nail-stream
            #:nail-stream-output-stream
            #:nail-stream-level
            #:nail-stream-formatter))
 (in-package #:nail/stream)
+
+(defparameter *enable-logger* t)
 
 (defclass nail-stream (trivial-gray-stream-mixin fundamental-character-output-stream)
   ((output-stream :initarg :output-stream
@@ -52,6 +55,12 @@
   (values))
 
 (defmethod stream-write-string ((stream nail-stream) str &optional start end)
+  (unless *enable-logger*
+    (return-from stream-write-string
+                 (write-string str (nail-stream-output-stream stream)
+                               :start (or start 0)
+                               :end end)))
+
   (with-slots (buffer) stream
     (let ((package (called-package)))
       (cond
@@ -67,6 +76,10 @@
         (setf buffer nil)))))
 
 (defmethod stream-write-char ((stream nail-stream) char)
+  (unless *enable-logger*
+    (return-from stream-write-char
+                 (write-char char (nail-stream-output-stream stream))))
+
   (if (char= char #\Newline)
       (with-slots (buffer) stream
         (when buffer

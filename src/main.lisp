@@ -9,7 +9,10 @@
                 #:make-debug-stream
                 #:make-warn-handler
                 #:make-error-handler)
+  (:import-from #:nail/stream
+                #:*enable-logger*)
   (:export #:with-logger
+           #:without-logger
            #:logger
            #:logger-level
            #:make-formatter
@@ -36,6 +39,10 @@
                    (*trace-output* (make-debug-stream *logger*
                                                       :output-stream *trace-output*)))
                ,@body))))))
+
+(defmacro without-logger (&body body)
+  `(let ((*enable-logger* nil))
+     ,@body))
 
 (defpackage #:nai
   (:use #:cl)

@@ -7,6 +7,7 @@
                 #:packet-created-at
                 #:packet-message)
   (:import-from #:nail/stream
+                #:*enable-logger*
                 #:nail-stream
                 #:nail-stream-output-stream)
   (:export #:base-logger
@@ -32,7 +33,7 @@
          (app-name (extract-app-name package-name)))
     (multiple-value-bind (sec min hour)
         (decode-universal-time (packet-created-at packet))
-      (format stream "~:[~;~:*~A | ~]<~:@(~A~)> [~2,'0D:~2,'0D:~2,'0D] ~A"
+      (format stream "~&~:[~;~:*~A | ~]<~:@(~A~)> [~2,'0D:~2,'0D:~2,'0D] ~A~%"
               app-name
               (packet-level packet)
               hour min sec
@@ -70,26 +71,26 @@
   (:method ((logger base-logger) &key output-stream)
     (let ((stream (or output-stream *error-output*)))
       (lambda (e)
-        (funcall (make-formatter logger)
-                 (make-packet
-                   :level :warn
-                   :message (princ-to-string e))
-                 (called-package)
-                 stream)
-        (terpri stream)
-        (muffle-warning e)))))
+        (when *enable-logger*
+          (funcall (make-formatter logger)
+                   (make-packet
+                     :level :warn
+                     :message (princ-to-string e))
+                   (called-package)
+                   stream)
+          (muffle-warning e))))))
 
 (defgeneric make-error-handler (logger &key output-stream)
   (:method ((logger base-logger) &key output-stream)
     (let ((stream (or output-stream *error-output*)))
       (lambda (e)
-        (funcall (make-formatter logger)
-                 (make-packet
-                   :level :error
-                   :message (format nil "~A: ~A" (type-of e) e))
-                 (called-package)
-                 stream)
-        (terpri stream)))))
+        (when *enable-logger*
+          (funcall (make-formatter logger)
+                   (make-packet
+                     :level :error
+                     :message (format nil "~A: ~A" (type-of e) e))
+                   (called-package)
+                   stream))))))
 
 ;;
 ;; Level logger
