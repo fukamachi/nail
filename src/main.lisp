@@ -2,7 +2,8 @@
   (:nicknames #:nail/main)
   (:use #:cl)
   (:import-from #:nail/logger
-                #:make-logger
+                #:logger
+                #:logger-level
                 #:make-formatter
                 #:make-info-stream
                 #:make-debug-stream
@@ -10,7 +11,7 @@
                 #:make-error-handler)
   (:export #:with-logger
            #:logger
-           #:make-logger
+           #:logger-level
            #:make-formatter
            #:make-info-stream
            #:make-debug-stream
@@ -18,18 +19,23 @@
            #:make-error-handler))
 (in-package #:nail)
 
+(defvar *logger* nil)
+
 (defmacro with-logger (logger &body body)
   (let ((warn-handler (gensym "WARN-HANDLER"))
         (error-handler (gensym "ERROR-HANDLER")))
-    `(let* ((,warn-handler (make-warn-handler ,logger))
-            (,error-handler (make-error-handler ,logger)))
-       (handler-bind ((warning ,warn-handler)
-                      (error ,error-handler))
-         (let ((*standard-output* (make-info-stream ,logger
-                                                    :output-stream *standard-output*))
-               (*trace-output* (make-debug-stream ,logger
-                                                  :output-stream *trace-output*)))
-           ,@body)))))
+    `(if *logger*
+         (progn ,@body)
+         (let* ((*logger* ,logger)
+                (,warn-handler (make-warn-handler *logger*))
+                (,error-handler (make-error-handler *logger*)))
+           (handler-bind ((warning ,warn-handler)
+                          (error ,error-handler))
+             (let ((*standard-output* (make-info-stream *logger*
+                                                        :output-stream *standard-output*))
+                   (*trace-output* (make-debug-stream *logger*
+                                                      :output-stream *trace-output*)))
+               ,@body))))))
 
 (defpackage #:nai
   (:use #:cl)

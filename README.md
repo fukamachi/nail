@@ -8,7 +8,7 @@ Experimental project to implement 'logger' just as a 'stream' to keep the applic
 (ql:quickload :nail)
 
 (defparameter *logger*
-  (nail:make-logger))
+  (make-instance 'nail:logger :level :debug)
 
 (nail:with-logger *logger*
   ;; Some application call which outputs logs to *standard-output* and *trace-output*.
