@@ -67,11 +67,9 @@
         (setf buffer nil)))))
 
 (defmethod stream-write-char ((stream nail-stream) char)
-  (with-slots (buffer) stream
-    (if (char= char #\Newline)
+  (if (char= char #\Newline)
+      (with-slots (buffer) stream
         (when buffer
           (flush-buffer stream)
-          (setf buffer nil))
-        (add-chunk buffer
-                   (make-string 1 :initial-element char)
-                   0 1))))
+          (setf buffer nil)))
+      (stream-write-string stream (make-string 1 :initial-element char))))
