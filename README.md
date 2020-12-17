@@ -8,13 +8,26 @@ Experimental project to implement 'logger' just as a 'stream' to keep the applic
 (ql:quickload :nail)
 
 (defparameter *logger*
-  (make-instance 'nail:logger :level :debug)
+  (make-instance 'nail:logger :level :debug))
 
+(defun main ()
+  (write-line "Start.")
+  (write-line "Just a debug note." *trace-output*)
+  (write-line "Bye."))
+
+;; Without logger
+(main)
+;-> Start.
+;   Just a debug note.
+;   Bye.
+
+;; With logger
 (nail:with-logger *logger*
-  ;; Some application call which outputs logs to *standard-output* and *trace-output*.
-  (myapp:main))
-;-> myapp | <INFO> [11:03:14] Starting a server.
-;-> myapp | <INFO> [11:12:23] Shutting down...
+  (main))
+
+;-> myapp | <INFO> [11:03:14] Start.
+;   myapp | <DEBUG> [11:03:15] Just a debug note.
+;   myapp | <INFO> [11:12:23] Bye.
 ```
 
 ## Author
