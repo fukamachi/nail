@@ -42,7 +42,7 @@
 (defun line-end-p (str end)
   (let ((len (length str)))
     (and (/= len 0)
-         (char= (aref str (or end (1- len))) #\Linefeed))))
+         (char= (aref str (1- (or end len))) #\Linefeed))))
 
 (defun flush-buffer (stream)
   (let ((packet (buffer-to-packet stream)))
